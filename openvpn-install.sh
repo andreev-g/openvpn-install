@@ -195,6 +195,9 @@ if [[ ! -e /etc/openvpn/server/server.conf ]]; then
 		read -p "DNS server [1]: " dns
 	done
 	echo
+	echo "What is server domain name?"
+	read -p "Domain [no domain]: " domain
+	echo
 	echo "Setup CA password?"
 	echo "   1) No"
 	echo "   2) Yes"
@@ -463,10 +466,14 @@ WantedBy=multi-user.target" >> /etc/systemd/system/openvpn-iptables.service
 	# If the server is behind NAT, use the correct IP address
 	[[ -n "$public_ip" ]] && ip="$public_ip"
 	# client-common.txt is created so we have a template to add further users later
+
+	remote_addr=$ip
+	[[ ! -z $domain ]] && remote_addr=$domain;
+
 	echo "client
 dev tun
 proto $protocol
-remote $ip $port
+remote $remote_addr $port
 resolv-retry infinite
 nobind
 persist-key
